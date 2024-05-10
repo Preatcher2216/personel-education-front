@@ -44,10 +44,14 @@ table {
 	border-spacing: 0;
 }
 
-.g-table__cell {
-	min-width: 362px;
+.g-progress {
+	width: 100%;
 }
 
-.g-table__cell_sticky_end {
-	min-width: 10px;
+.userTable {
+	max-width: 362px  !important;
+}
+
+.competenciesTable {
+	max-width: 362px  !important;
 }

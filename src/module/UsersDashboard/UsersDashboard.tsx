@@ -7,10 +7,7 @@ import { Magnifier } from '@gravity-ui/icons';
 import { BarsDescendingAlignCenter } from '@gravity-ui/icons';
 
 import * as Styled from './styled';
-
-const ProgressNode = () => {
-  return <div>test</div>;
-};
+import { useNavigate } from 'react-router-dom';
 
 const data = [
   {
@@ -27,14 +24,14 @@ const data = [
 ];
 
 const columns = [
-  { id: 'fio', name: 'ФИО', width: '362px' },
-  { id: 'grade', name: 'Должность', width: '362px' },
+  { id: 'fio', name: 'ФИО', width: '362px', className: 'userTable' },
+  { id: 'grade', name: 'Должность', width: '362px', className: 'userTable' },
   {
     id: 'progress',
     name: 'Освоение компетенций',
     width: '362px',
     align: 'center',
-    // template: () => ProgressNode,
+    className: 'userTable',
   },
 ];
 
@@ -59,6 +56,8 @@ const getRowActions = () => {
 const MyTable = withTableActions(Table);
 
 export const UsersDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <Styled.Container>
       <Styled.SearchBlock>
@@ -90,7 +89,12 @@ export const UsersDashboard = () => {
         <Divider style={{ width: '100%' }} />
       </Styled.SearchBlock>
       <Styled.TableBlock>
-        <MyTable data={data} columns={columns} getRowActions={getRowActions} />
+        <MyTable
+          data={data}
+          columns={columns}
+          getRowActions={getRowActions}
+          onRowClick={() => navigate('/personell/competencies')}
+        />
       </Styled.TableBlock>
     </Styled.Container>
   );
