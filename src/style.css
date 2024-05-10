@@ -43,3 +43,11 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+
+.g-table__cell {
+	min-width: 362px;
+}
+
+.g-table__cell_sticky_end {
+	min-width: 10px;
+}

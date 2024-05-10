@@ -17,7 +17,7 @@ export const Login = () => {
   const handleSubmit = () => {
     try {
       // api handle
-      navigate('/dashboard');
+      navigate('/personell/dashboard');
     } catch {
       //handle api error
       setError('Неверный логин или пароль, попробуйте еще раз');
