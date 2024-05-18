@@ -1,25 +1,29 @@
 import * as Styled from './styled';
 import { Text } from '@gravity-ui/uikit';
 import { Button } from '@gravity-ui/uikit';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../../api';
+import { authAtom, userAtom } from '../../data/user';
+import { useAtom } from '@reatom/npm-react';
 
 export const Login = () => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const [, setUser] = useAtom(userAtom);
+  const [, setAuth] = useAtom(authAtom);
+
   const navigate = useNavigate();
 
-  console.log('login', login);
-  console.log('password', password);
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
-      // api handle
+      const res = await loginUser(login, password);
+      setUser(res);
+      setAuth(true);
       navigate('/personell/dashboard');
     } catch {
-      //handle api error
       setError('Неверный логин или пароль, попробуйте еще раз');
     }
   };

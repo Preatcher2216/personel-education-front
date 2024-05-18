@@ -7,9 +7,23 @@ import { Briefcase } from '@gravity-ui/icons';
 import { useNavigate } from 'react-router-dom';
 
 import * as Styled from './styled';
+import { downloadManagerReport } from '../../api/userApi';
 
 export const NavigationMenu = () => {
   const navigate = useNavigate();
+
+  const downloadReport = async () => {
+    await downloadManagerReport();
+    const href = 'http://localhost:5000/Personel.xlsx';
+
+    const link = document.createElement('a');
+    link.href = href;
+    link.setAttribute('download', 'Personel.xlsx');
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+  };
 
   return (
     <Styled.Container>
@@ -23,7 +37,7 @@ export const NavigationMenu = () => {
       </Styled.UserWrapper>
 
       <Styled.ButtonsWrapper>
-        <Button size='xl'>
+        <Button size='xl' onClick={downloadReport}>
           <Styled.ButtonsContent>
             <Printer />
             Сформировать отчет

@@ -41,3 +41,11 @@ export const ButtonsContent = styled('div')({
 export const TableBlock = styled('div')({
   marginTop: '24px',
 });
+
+export const ModalWrapper = styled('div')({
+  minWidth: '300px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+  padding: '24px',
+});
