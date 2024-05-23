@@ -1,11 +1,14 @@
-import { Icon, Label, Text, User, Breadcrumbs } from '@gravity-ui/uikit';
-import { Magnifier, CirclePlus, FloppyDisk } from '@gravity-ui/icons';
+import { Text, Breadcrumbs } from '@gravity-ui/uikit';
+import { CirclePlus, FloppyDisk } from '@gravity-ui/icons';
 
 import { useNavigate } from 'react-router-dom';
 
 import * as Styled from './styled';
 import { useEffect, useState } from 'react';
 import {
+  createCompetence,
+  createMatrix,
+  createUser,
   getAllPersonel,
   getAllPositions,
   getAllRoles,
@@ -41,6 +44,7 @@ const rates = [
 
 export const AddPerson = () => {
   const [personel, setPersonel] = useState([]);
+  const [rawPersonel, setRawPersonel] = useState([]);
   const [position, setPosition] = useState([]);
   const [role, setRole] = useState([]);
 
@@ -48,26 +52,22 @@ export const AddPerson = () => {
   const [selectedPostion, setSelectedPostion] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
 
-  const [selectedTitle, setSelectedTitle] = useState(null);
-  const [selectedDescription, setSelectedDescription] = useState(null);
-  const [selectedMandatory, setSelectedMandatory] = useState(null);
-  const [selectedRate, setSelectedRate] = useState(null);
-  const [test, setTest] = useState(new Map());
+  const [selectedTitle, setSelectedTitle] = useState(new Map());
+  const [selectedDescription, setSelectedDescription] = useState(new Map());
+  const [selectedMandatory, setSelectedMandatory] = useState(new Map());
+  const [selectedRate, setSelectedRate] = useState(new Map());
+
+  const [error, setError] = useState(null);
 
   const [competenceCount, setCompetenceCount] = useState(1);
-
-  console.log('selectedTitle', selectedTitle);
-  console.log('selectedDescription', selectedDescription);
-  console.log('selectedMandatory', selectedMandatory);
-  console.log('selectedRate', selectedRate);
-
-  console.log('test', test);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllPersonel = async () => {
       const res = await getAllPersonel();
+
+      setRawPersonel(res);
 
       const preparedPersonel = res.map((p) => ({
         value: p.id,
@@ -130,7 +130,9 @@ export const AddPerson = () => {
           size='m'
           placeholder='Название компетенции...'
           type='text'
-          onUpdate={(val) => setSelectedTitle(val)}
+          onUpdate={(val) =>
+            setSelectedTitle((titles) => titles.set(index, val))
+          }
         />
       </Styled.SelectCompetenceWrapper>
       <Styled.SelectCompetenceWrapper>
@@ -140,7 +142,11 @@ export const AddPerson = () => {
           size='m'
           placeholder='Описание компетенции...'
           minRows={2}
-          onUpdate={(val) => setSelectedDescription(val)}
+          onUpdate={(val) =>
+            setSelectedDescription((descriptions) =>
+              descriptions.set(index, val)
+            )
+          }
         />
       </Styled.SelectCompetenceWrapper>
       <Styled.SelectCompetenceWrapper>
@@ -149,28 +155,19 @@ export const AddPerson = () => {
           id={`rate=${index} ${selectedRate}`}
           placeholder='Оценка компетенции'
           options={rates}
-          onUpdate={(val) => setSelectedRate(val[0])}
+          onUpdate={(val) =>
+            setSelectedRate((rates) => rates.set(index, val[0]))
+          }
         />
       </Styled.SelectCompetenceWrapper>
       <Styled.SelectCompetenceWrapper>
         <Text variant='subheader-1'>Обязательность компетенции</Text>
         <Styled.RadioButtonWrapper
-          aria-label={`mandatory=${index} ${selectedMandatory}`}
           name={`mandatory=${index}`}
           defaultValue={options[0].value}
           options={options}
-          // onChange={(v) => console.log(v)}
           onUpdate={(val) => {
-            // setTest((t) => [
-            //   ...t,
-            //   {
-            //     [index]: {
-            //       mandatory: val,
-            //     },
-            //   },
-            // ]);
-            setTest((test) => test.set(index, val));
-            setSelectedMandatory(val);
+            setSelectedMandatory((mandatories) => mandatories.set(index, val));
           }}
         />
       </Styled.SelectCompetenceWrapper>
@@ -179,7 +176,52 @@ export const AddPerson = () => {
     </>
   ));
 
-  console.log(competences);
+  const prepareData = async () => {
+    try {
+      const matrix = await createMatrix(competences.length);
+
+      const personelData = rawPersonel.find((p) => p.id === selectedPersonel);
+
+      const rawUser = {
+        ...personelData,
+        avatar: '',
+        personelId: personelData.id,
+        positionId: selectedPostion,
+        roleId: selectedRole,
+        matrixId: matrix.id,
+      };
+
+      delete rawUser.id;
+      delete rawUser.createdAt;
+      delete rawUser.updatedAt;
+
+      const user = await createUser(rawUser);
+
+      const competencesData = competences.map((_, index) => {
+        return {
+          title: selectedTitle.get(index),
+          description: selectedDescription.get(index),
+          rate: selectedRate.get(index),
+          rang: 0,
+          matrixId: matrix.id,
+          competenceTypeId: selectedMandatory.get(index) === 'true' ? 2 : 1,
+        };
+      });
+
+      const [competencesPromises] = await Promise.all([
+        competencesData.map((c) => createCompetence(c)),
+      ]);
+
+      const competencesResponce = await Promise.all(competencesPromises);
+
+      navigate('/personell/dashboard');
+
+      console.log('competencesData', competencesData);
+    } catch (e) {
+      setError(e);
+    }
+  };
+
   return (
     <Styled.Container>
       <Styled.SearchWrapper>
@@ -206,54 +248,11 @@ export const AddPerson = () => {
       </Styled.SearchWrapper>
       <Styled.CompetenceWrapper>
         <Text variant='header-1'>Добавление компетенции</Text>
-        {/* <Styled.SelectCompetenceWrapper>
-          <Text variant='subheader-1'>Тип компетенции</Text>
-          <Styled.SelectWrapper placeholder='Тип компетенции' />
-        </Styled.SelectCompetenceWrapper> */}
-        {/* <Styled.SelectCompetenceWrapper>
-          <Text variant='subheader-1'>Название компетенции</Text>
-          <Styled.SearchInputWrapper
-            size='m'
-            placeholder='Название компетенции...'
-            type='text'
-          />
-        </Styled.SelectCompetenceWrapper>
-        <Styled.SelectCompetenceWrapper>
-          <Text variant='subheader-1'>Описание компетенции</Text>
-          <Styled.TextAreaWrapper
-            size='m'
-            placeholder='Описание компетенции...'
-            minRows={2}
-          />
-        </Styled.SelectCompetenceWrapper>
-        <Styled.SelectCompetenceWrapper>
-          <Text variant='subheader-1'>Оценка компетенции</Text>
-          <Styled.SelectWrapper placeholder='Оценка компетенции' />
-        </Styled.SelectCompetenceWrapper>
-        <Styled.SelectCompetenceWrapper>
-          <Text variant='subheader-1'>Обязательность компетенции</Text>
-          <Styled.RadioButtonWrapper
-            name='mandatory'
-            defaultValue={options[0].value}
-            options={options}
-          />
-        </Styled.SelectCompetenceWrapper>
-
-        <Styled.DividerWrapper /> */}
 
         {competences}
 
         <Styled.AddButton
           onClick={() => {
-            // const title = document.getElementById(`title=0`);
-            // const description = document.getElementById(`description=0`);
-            // const rate = document.getElementById(`rate=0`);
-            // const mandatory = document.getElementById(`mandatory=0`);
-            // console.log(title.value);
-            // console.log(description.value);
-            // console.log(rate.value);
-            // console.log(mandatory.value);
-
             setCompetenceCount((count) => count + 1);
           }}
         >
@@ -263,7 +262,7 @@ export const AddPerson = () => {
           </Styled.ButtonsContent>
         </Styled.AddButton>
 
-        <Styled.SaveButton>
+        <Styled.SaveButton onClick={prepareData}>
           <Styled.ButtonsContent>
             <FloppyDisk />
             Сохранить

@@ -49,6 +49,20 @@ export type Personel = {
   updatedAt: string;
 };
 
+export type Matrix = {
+  id: number;
+  competenceCount: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Comment = {
+  id: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export const loginUser = async (email: string, password: string) => {
   const res = await $host.post('api/user/login', { email, password });
 
@@ -71,6 +85,12 @@ export const getUsers = async () => {
   return res.data;
 };
 
+export const getUser = async (id: number) => {
+  const res = await $authHost.get<User>(`api/user/get-user?id=${id}`);
+
+  return res.data;
+};
+
 export const getPosition = async (id: number) => {
   const res = await $authHost.get<Position>(
     `api/position/get-position?id=${id}`
@@ -85,9 +105,25 @@ export const getMatrix = async (id: number) => {
   return res.data;
 };
 
+export const getComment = async (id: number) => {
+  const res = await $authHost.get<Comment>(
+    `api/comment/get-comment?competenceId=${id}`
+  );
+
+  return res.data;
+};
+
 export const getCompetences = async (matrixId: number) => {
   const res = await $authHost.get<Competence[]>(
     `api/competence/get-competence?matrixId=${matrixId}`
+  );
+
+  return res.data;
+};
+
+export const getCompetenceById = async (id: number) => {
+  const res = await $authHost.get<Competence>(
+    `api/competence/get-competence-id?id=${id}`
   );
 
   return res.data;
@@ -159,4 +195,64 @@ export const getAllPersonel = async () => {
 
 export const downloadManagerReport = async () => {
   await $authHost.post('api/user/managerReport');
+};
+
+export const createUser = async (user) => {
+  const res = await $authHost.post(`api/user/create-user`, {
+    ...user,
+  });
+
+  return res.data;
+};
+
+export const createMatrix = async (competenceCount: number) => {
+  const res = await $authHost.post<Matrix>(`api/matrix/create-matrix`, {
+    competenceCount,
+  });
+
+  return res.data;
+};
+
+export const createCompetence = async (competence) => {
+  const res = await $authHost.post(`api/competence/create-competence`, {
+    ...competence,
+  });
+
+  return res.data;
+};
+
+export const createComment = async (comment) => {
+  const res = await $authHost.post<Comment>(`api/comment/create-comment`, {
+    ...comment,
+  });
+
+  return res.data;
+};
+
+export const updateCompetence = async (competence) => {
+  const res = await $authHost.post(`api/competence/update-competence`, {
+    ...competence,
+  });
+
+  return res.data;
+};
+
+export const deleteCompetence = async (id: number) => {
+  const res = await $authHost.delete(
+    `api/competence/delete-competence?id=${id}`
+  );
+
+  return res.data;
+};
+
+export const deleteUser = async (id: number) => {
+  const res = await $authHost.delete(`api/user/delete-user?id=${id}`);
+
+  return res.data;
+};
+
+export const updateUser = async (id: number, positionId: number) => {
+  const res = await $authHost.post(`api/user/update-user`, { id, positionId });
+
+  return res.data;
 };

@@ -16,25 +16,12 @@ import { Funnel, Magnifier } from '@gravity-ui/icons';
 import * as Styled from './styled';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
-import { getAllPositions, getUserTableData, getUsers } from '../../api/userApi';
-
-const getRowActions = () => {
-  return [
-    {
-      text: 'Отчет по сотруднику',
-      handler: () => {},
-    },
-    {
-      text: 'Редактировать сотрудника',
-      handler: () => {},
-    },
-    {
-      text: 'Удалить сотрудника',
-      handler: () => {},
-      theme: 'danger',
-    },
-  ];
-};
+import {
+  deleteUser,
+  getAllPositions,
+  getUserTableData,
+  getUsers,
+} from '../../api/userApi';
 
 const columns = [
   {
@@ -100,10 +87,29 @@ export const UsersDashboard = () => {
 
   const navigate = useNavigate();
 
+  const getRowActions = () => {
+    return [
+      {
+        text: 'Удалить сотрудника',
+        handler: async (item) => {
+          const res1 = await deleteUser(item.id);
+
+          const res = await getUsers();
+
+          const tableData = await getUserTableData(res.users);
+
+          setUsers(tableData);
+        },
+        theme: 'danger',
+      },
+    ];
+  };
+
   const rows = users.map((u) => ({
+    id: u.id,
     fio: u.fio,
     grade: u.grade.title,
-    progress: u.progress.completePersent + '%',
+    progress: Number(u.progress.completePersent).toFixed() + '%',
     gradeNumber: u.grade.rang,
   }));
 
@@ -150,7 +156,7 @@ export const UsersDashboard = () => {
       const filterdCompetenceAndPosition = rows
         .filter((u) => u.gradeNumber === selectedPosition)
         .filter((u) => {
-          return Number(u.progress.slice(0, -1)) === selectedComplete;
+          return Number(u.progress.slice(0, -1)) >= selectedComplete;
         });
 
       return filterdCompetenceAndPosition || [];
@@ -208,7 +214,9 @@ export const UsersDashboard = () => {
           data={isFilterEnable ? filteredUser : query ? searchUsers : rows}
           columns={columns}
           getRowActions={getRowActions}
-          onRowClick={() => navigate('/personell/competencies')}
+          onRowClick={(data) => {
+            navigate(`/personell/competencies?id=${data.id}`);
+          }}
         />
       </Styled.TableBlock>
 

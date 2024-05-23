@@ -24,7 +24,7 @@ export const Login = () => {
       setAuth(true);
       navigate('/personell/dashboard');
     } catch {
-      setError('Неверный логин или пароль, попробуйте еще раз');
+      setError('Неверный логин или пароль, попробуйте еще раз.');
     }
   };
 
