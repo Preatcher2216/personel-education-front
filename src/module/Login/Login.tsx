@@ -1,7 +1,7 @@
 import * as Styled from './styled';
 import { Text } from '@gravity-ui/uikit';
 import { Button } from '@gravity-ui/uikit';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../../api';
 import { authAtom, userAtom } from '../../data/user';

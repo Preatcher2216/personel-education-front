@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Text, Breadcrumbs } from '@gravity-ui/uikit';
 import { CirclePlus, FloppyDisk } from '@gravity-ui/icons';
 

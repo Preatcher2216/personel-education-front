@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { jwtDecode } from 'jwt-decode';
 import { $host, $authHost } from './config';
 

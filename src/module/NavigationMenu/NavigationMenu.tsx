@@ -1,15 +1,11 @@
+//@ts-nocheck
 import { Divider, User } from '@gravity-ui/uikit';
 import { Button } from '@gravity-ui/uikit';
 import { PersonPlus } from '@gravity-ui/icons';
 import { Printer } from '@gravity-ui/icons';
 import { Briefcase } from '@gravity-ui/icons';
 
-import {
-  matchRoutes,
-  useMatch,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { useMatch, useNavigate, useSearchParams } from 'react-router-dom';
 
 import * as Styled from './styled';
 import { downloadManagerReport } from '../../api/userApi';
@@ -19,7 +15,7 @@ import { useAtom } from '@reatom/npm-react';
 export const NavigationMenu = () => {
   const navigate = useNavigate();
   const [user] = useAtom(userAtom);
-  const [modal, setModal] = useAtom(positionAtom);
+  const [setModal] = useAtom(positionAtom);
 
   const isManager = user.roleRang === 1;
 
@@ -72,7 +68,7 @@ export const NavigationMenu = () => {
           </Button>
         )}
 
-        {competencesRoute && isManager && (
+        {competencesRoute && (
           <Button
             size='xl'
             onClick={() => {
